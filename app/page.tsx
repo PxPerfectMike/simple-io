@@ -86,8 +86,8 @@ export default function Component() {
         setConnectionStatus("connected")
         setGameState("playing")
 
-        // Start polling for updates
-        startGameUpdates()
+        // Start polling for updates with the new player ID
+        startGameUpdates(playerId)
       } else {
         throw new Error("Failed to join game")
       }
@@ -99,7 +99,7 @@ export default function Component() {
   }, [username])
 
   // Start game update polling
-  const startGameUpdates = useCallback(() => {
+  const startGameUpdates = useCallback((playerId: string) => {
     if (updateIntervalRef.current) {
       clearInterval(updateIntervalRef.current)
     }
@@ -107,10 +107,10 @@ export default function Component() {
     const updateGame = async () => {
       try {
         // Send any pending movement
-        if (movementQueueRef.current && myPlayerId) {
+        if (movementQueueRef.current && playerId) {
           await apiCall("/api/game-state", {
             type: "move",
-            playerId: myPlayerId,
+            playerId,
             x: movementQueueRef.current.x,
             y: movementQueueRef.current.y,
           })
@@ -140,7 +140,7 @@ export default function Component() {
 
     updateGame() // Initial update
     updateIntervalRef.current = setInterval(updateGame, UPDATE_INTERVAL)
-  }, [myPlayerId, lastServerUpdate])
+  }, [lastServerUpdate])
 
   // Handle keyboard input
   useEffect(() => {
