@@ -29,6 +29,7 @@ const PLAYER_SIZE = 20
 const FOOD_SIZE = 8
 const MOVE_SPEED = 3
 const UPDATE_INTERVAL = 100 // Update every 100ms
+const HEARTBEAT_INTERVAL = 5000 // Send heartbeat every 5 seconds
 
 export default function Component() {
   const [gameState, setGameState] = useState<"login" | "connecting" | "playing" | "disconnected">("login")
@@ -45,6 +46,7 @@ export default function Component() {
   const animationFrameRef = useRef<number>()
   const updateIntervalRef = useRef<NodeJS.Timeout>()
   const movementQueueRef = useRef<{ x: number; y: number } | null>(null)
+  const lastHeartbeatRef = useRef<number>(0)
 
   // API call helper
   const apiCall = async (endpoint: string, data?: any) => {
@@ -86,6 +88,8 @@ export default function Component() {
         setConnectionStatus("connected")
         setGameState("playing")
 
+        lastHeartbeatRef.current = Date.now()
+
         // Start polling for updates
         startGameUpdates()
       } else {
@@ -106,6 +110,8 @@ export default function Component() {
 
     const updateGame = async () => {
       try {
+        const now = Date.now()
+
         // Send any pending movement
         if (movementQueueRef.current && myPlayerId) {
           await apiCall("/api/game-state", {
@@ -115,6 +121,14 @@ export default function Component() {
             y: movementQueueRef.current.y,
           })
           movementQueueRef.current = null
+          lastHeartbeatRef.current = now
+        } else if (myPlayerId && now - lastHeartbeatRef.current > HEARTBEAT_INTERVAL) {
+          // Keep player alive when idle
+          await apiCall("/api/game-state", {
+            type: "heartbeat",
+            playerId: myPlayerId,
+          })
+          lastHeartbeatRef.current = now
         }
 
         // Get current game state

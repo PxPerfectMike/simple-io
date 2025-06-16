@@ -170,6 +170,15 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ success: false })
 
+      case "heartbeat":
+        // Update last active time without changing position
+        if (gameState.players.has(data.playerId)) {
+          const player = gameState.players.get(data.playerId)!
+          player.lastUpdate = now
+        }
+
+        return NextResponse.json({ success: true })
+
       case "leave":
         if (gameState.players.has(data.playerId)) {
           gameState.players.delete(data.playerId)
