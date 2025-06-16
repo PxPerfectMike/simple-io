@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, Gamepad2, Wifi, WifiOff, RefreshCw } from "lucide-react"
+import { Users, Gamepad2, Wifi, WifiOff, RefreshCw, Trophy } from "lucide-react"
 
 interface Player {
   id: string
@@ -49,7 +49,7 @@ export default function Component() {
   const lastHeartbeatRef = useRef<number>(0)
 
   // API call helper
-  const apiCall = async (endpoint: string, data?: any) => {
+  const apiCall = async (endpoint: string, data?: Record<string, unknown>) => {
     try {
       const response = await fetch(endpoint, {
         method: data ? "POST" : "GET",
@@ -352,19 +352,25 @@ export default function Component() {
 
   if (gameState === "login") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex flex-col items-center justify-center p-6 text-center">
+        <h1 className="text-5xl font-bold text-white mb-4">Dot.io</h1>
+        <p className="text-lg text-white/80 mb-8 max-w-xl">
+          Eat dots, grow bigger and climb the leaderboard against players around the world.
+        </p>
+        <Card className="w-full max-w-md bg-white/5 backdrop-blur-md border border-white/20 shadow-lg">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
               <Gamepad2 className="w-8 h-8 text-white" />
             </div>
-            <CardTitle className="text-2xl font-bold">Dot.io Game</CardTitle>
-            <CardDescription>Enter your username to join the multiplayer arena</CardDescription>
+            <CardTitle className="text-2xl font-bold text-white">Join the Arena</CardTitle>
+            <CardDescription className="text-white/70">
+              Enter a username to start playing
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Input
-                placeholder="Enter your username"
+                placeholder="Your name"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleJoinGame()}
@@ -372,13 +378,27 @@ export default function Component() {
               />
             </div>
             <Button onClick={handleJoinGame} className="w-full" disabled={!username.trim()}>
-              Join Game
+              Play Now
             </Button>
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-sm text-white/70">
               Use WASD or arrow keys to move around and collect food!
             </div>
           </CardContent>
         </Card>
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6 text-white/90 max-w-md w-full">
+          <div className="flex flex-col items-center gap-2">
+            <Users className="h-6 w-6" />
+            <span className="text-sm">Multiplayer</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Gamepad2 className="h-6 w-6" />
+            <span className="text-sm">Easy Controls</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Trophy className="h-6 w-6" />
+            <span className="text-sm">Leaderboard</span>
+          </div>
+        </div>
       </div>
     )
   }
